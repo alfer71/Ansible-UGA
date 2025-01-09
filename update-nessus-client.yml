@@ -29,6 +29,8 @@
       dnf:
         name: "{{ tmp_rpm_path }}"
         state: present
+        become: yes
+        become_user: root
 
     - name: Restart the Nessus Agent service
       service:
