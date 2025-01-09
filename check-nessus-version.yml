@@ -1,0 +1,20 @@
+---
+- name: Check Nessus Agent Version
+  hosts: uganessusprodservers
+  become: yes
+
+  tasks:
+    - name: Check Nessus Agent version using nessuscli
+      shell: "/opt/nessus_agent/sbin/nessuscli --version"
+      register: nessuscli_version
+      ignore_errors: yes
+
+    - name: Display Nessus Agent version if command is successful
+      debug:
+        msg: "{{ inventory_hostname }}: {{ nessuscli_version.stdout }}"
+      when: nessuscli_version.rc == 0
+
+    - name: Display message if Nessus Agent version command fails
+      debug:
+        msg: "{{ inventory_hostname }}: Unable to retrieve Nessus Agent version. Ensure Nessus Agent is installed and accessible."
+      when: nessuscli_version.rc != 0
