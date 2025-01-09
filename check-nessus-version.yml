@@ -1,6 +1,7 @@
 ---
 - name: Check Nessus Agent Version
   hosts: uganessusprodservers
+  remote_user: afernandez
   become: yes
 
   tasks:
