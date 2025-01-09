@@ -1,6 +1,7 @@
 ---
 - name: Update Nessus Agent on RHEL 8 server
   hosts: uganessusprodservers
+  remote_user: afernandez
   become: yes
 
   tasks:
