@@ -1,0 +1,54 @@
+---
+- name: Update Nessus Agent on RHEL 8 server
+  hosts: uganessusprodservers
+  become: yes
+
+  tasks:
+    - name: Validate the current version of Nessus Agent
+      command: /opt/nessus_agent/sbin/nessuscli --version
+      register: nessus_version_before
+      ignore_errors: true
+
+    - name: Display the current version
+      debug:
+        msg: "Current Nessus Agent Version: {{ nessus_version_before.stdout }}"
+
+    - name: Check the current service status
+      command: systemctl status nessusagent.service
+      register: nessus_service_status_before
+      ignore_errors: true
+
+    - name: Display the Nessus service status
+      debug:
+        msg: "Nessus Agent Service Status Before Update: {{ nessus_service_status_before.stdout }}"
+
+    - name: Update the Nessus Agent package
+      dnf:
+        name: /tmp/NessusAgent-10.8.2-el8.x86_64.rpm
+        state: present
+
+    - name: Restart the Nessus Agent service
+      service:
+        name: nessusagent.service
+        state: restarted
+
+    - name: Verify the Nessus Agent service is running
+      command: systemctl status nessusagent.service
+      register: nessus_service_status_after
+
+    - name: Display the Nessus service status after update
+      debug:
+        msg: "Nessus Agent Service Status After Update: {{ nessus_service_status_after.stdout }}"
+
+    - name: Validate the updated version of Nessus Agent
+      command: /opt/nessus_agent/sbin/nessuscli --version
+      register: nessus_version_after
+
+    - name: Display the updated version
+      debug:
+        msg: "Updated Nessus Agent Version: {{ nessus_version_after.stdout }}"
+
+    - name: Remove the RPM package from /tmp
+      file:
+        path: /tmp/NessusAgent-10.8.2-el8.x86_64.rpm
+        state: absent
